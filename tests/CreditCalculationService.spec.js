@@ -13,11 +13,25 @@ describe('CreditCalculationService', function() {
 		this.RequiredBundleInputId = RequiredBundleInputId;
 	}
 
-	var creditCalculationService
-		
+	var creditCalculationService, dataservice, hashtableService;
+	
+	// Allow spying to replace returned data
+	var mockWhere = {
+		where: function() {}
+	}
+	
+	// Mocking hasthtable service
+	var mockHashtableService = {
+		get: function() {
+			return mockWhere;
+		}
+	};
 	
 	beforeEach(function() {
-		module('Enrollment');
+		module('Enrollment')
+		
+		// Tell it to use the Mock service in place of the real one
+		module({'HashtableService': mockHashtableService});
 		
 		// Allow Karma to run without those annoying popups
 		window.onbeforeunload = function() {};
@@ -25,14 +39,15 @@ describe('CreditCalculationService', function() {
 		inject(function(EnrollmentService)  {			
 			creditCalculationService = EnrollmentService;
 		});
-
+		inject(function(HashtableService)  {			
+			hashtableService = HashtableService;
+		});
 	});
 	
 	it('has a calculateClientBundleCredit function', function() {
 		expect(creditCalculationService.calculateClientBundleCredit).toBeTruthy();
 	});
 
-	
 	it('calculates simple one-input bundle price correctly', function() {
 		let mockClientBundle = {
 			BundleQuantity: 3,
