@@ -306,7 +306,7 @@ describe('CreditCalculationService', function() {
 	});
 	it('calculates price for one-year bundles for inputs with RequiredBundleInputId and min/max quantities', function() {
 		
-		let BundleInputs = [
+		let mockBundleInputs = [
 				//					ID	SelectionGroup	FixedAdj	PerBundleAdj	ReqQtyFrom	ReqQtyTo	ReqInputId
 					new BundleInput(1, 	'Jon', 			10, 		30, 			null, 			2, 				null),
 					new BundleInput(2, 	'Robb', 		0, 			20, 			3,	 			4,	 			null),
@@ -314,26 +314,25 @@ describe('CreditCalculationService', function() {
 					new BundleInput(3, 	'Cersei', 		0, 			10, 			3, 				3,	 			2),
 					new BundleInput(4, 	'Arya', 		50, 		50, 			null, 			null,	 		5),
 				];
-		let mockClientBundle = {
-			BundleQuantity: 2,
-			Bundle: {
-				BundleCost_Fixed: 500,	BundleCost_PerBundle: 200,
-				BundleInputs: BundleInputs,
-				CreditCycleBundles: [ { CreditCycleId: 1, CreditPercentage: 1}	]
-			},
-			ClientBundleInputChoices: [],
-		}
-		let mockSeason = {	CreditCycles: [	{ CreditCycleId: 1}	] };
+		let mockClientBundle = { BundleQuantity: 2 };
+		let mockBundle = { BundleCost_Fixed: 500,	BundleCost_PerBundle: 200 };
+		let mockClientBundleInputChoices = [];
+		let mockSeason = { SeasonId: 1 };
+		let mockCreditCycleBundles = [ { CreditCycleId: 1, CreditPercentage: 1 } ];
+		let mockCreditCycles = [ { CreditCycleId: 1 } ];
 		
 		// 500 + 200 * 2 + 10 + 30 * 2 
+		var whereSpy = spyOn(mockWhere,'where').and.returnValues(mockCreditCycles,mockBundle,mockBundleInputs,mockCreditCycleBundles,mockClientBundleInputChoices)
 		expect(creditCalculationService.calculateClientBundleCredit(mockClientBundle, mockSeason)).toEqual(970);
 		
 		mockClientBundle.BundleQuantity = 3;
 		// 500 + 200 * 3 + 0 + 20 * 3 + 10 * 3
+		whereSpy.and.returnValues(mockCreditCycles,mockBundle,mockBundleInputs,mockCreditCycleBundles,mockClientBundleInputChoices)
 		expect(creditCalculationService.calculateClientBundleCredit(mockClientBundle, mockSeason)).toEqual(1190);
 
 		mockClientBundle.BundleQuantity = 4;
 		// 500 + 200 * 4 + 0 + 20 * 4
+		whereSpy.and.returnValues(mockCreditCycles,mockBundle,mockBundleInputs,mockCreditCycleBundles,mockClientBundleInputChoices)
 		expect(creditCalculationService.calculateClientBundleCredit(mockClientBundle, mockSeason)).toEqual(1380);
 
 	});
