@@ -1,5 +1,5 @@
 describe('CreditCalculationService', function() {
-	
+
 	// Bundle Input CLASS
 	// 	to make the tests easier to understand
 	function BundleInput(BundleInputId, SelectionGroup, CostAdjustment_Fixed, CostAdjustment_PerBundle,
@@ -14,36 +14,36 @@ describe('CreditCalculationService', function() {
 	}
 
 	var creditCalculationService, dataservice, hashtableService;
-	
+
 	// Allow spying to replace returned data
 	var mockWhere = {
 		where: function() {}
 	}
-	
+
 	// Mocking hasthtable service
 	var mockHashtableService = {
 		get: function() {
 			return mockWhere;
 		}
 	};
-	
+
 	beforeEach(function() {
 		module('Enrollment')
-		
+
 		// Tell it to use the Mock service in place of the real one
 		module({'HashtableService': mockHashtableService});
-		
+
 		// Allow Karma to run without those annoying popups
 		window.onbeforeunload = function() {};
-		
-		inject(function(EnrollmentService)  {			
+
+		inject(function(EnrollmentService)  {
 			creditCalculationService = EnrollmentService;
 		});
-		inject(function(HashtableService)  {			
+		inject(function(HashtableService)  {
 			hashtableService = HashtableService;
 		});
 	});
-	
+
 	it('has a calculateClientBundleCredit function', function() {
 		expect(creditCalculationService.calculateClientBundleCredit).toBeTruthy();
 	});
@@ -60,10 +60,10 @@ describe('CreditCalculationService', function() {
 					new BundleInput(1, 	'Jon Snow', 	0, 			0, 				null, 		null, 		null)
 		];
 		let	mockClientBundleInputChoices = [];
-		
+
 		spyOn(mockWhere,'where').and.returnValues(mockCreditCycles,mockBundle,mockBundleInputs,mockCreditCycleBundles,mockClientBundleInputChoices)
 		expect(creditCalculationService.calculateClientBundleCredit(mockClientBundle, mockSeason)).toEqual(1100);
-								
+
 	})
 
 	it('calculates simple multi-input bundle price correctly', function() {
@@ -76,16 +76,16 @@ describe('CreditCalculationService', function() {
 		let mockBundleInputs = [
 				//					ID	SelectionGroup	FixedAdj	PerBundleAdj	ReqQtyFrom	ReqQtyTo	ReqInputId
 					new BundleInput(1, 	'Jon', 			20, 		0, 				null, 		null, 		null),
-					new BundleInput(2, 	'Cersei', 		0, 			10, 			null, 		null, 		null),
+					new BundleInput(2, 	'Cersei', 	0, 			10, 			null, 		null, 		null),
 					new BundleInput(3, 	'Arya', 		0, 			0, 				null, 		null, 		null),
 				];
 		let	mockClientBundleInputChoices = [];
-		
+
 		spyOn(mockWhere,'where').and.returnValues(mockCreditCycles,mockBundle,mockBundleInputs,mockCreditCycleBundles,mockClientBundleInputChoices)
 		expect(creditCalculationService.calculateClientBundleCredit(mockClientBundle, mockSeason)).toEqual(940);
-								
+
 	});
-	
+
 	it('calculates simple one-input, multi-year bundle price correctly', function() {
 		let mockClientBundle = {
 			BundleQuantity: 3,
@@ -100,11 +100,11 @@ describe('CreditCalculationService', function() {
 			ClientBundleInputChoices: [],
 		}
 		let mockSeason = {	CreditCycles: [	{ CreditCycleId: 1}	] };
-		
+
 		expect(creditCalculationService.calculateClientBundleCredit(mockClientBundle, mockSeason)).toEqual(550);
-								
+
 	});
-		
+
 	it('calculates simple multi-input, multi-year bundle price correctly', function() {
 		let mockClientBundle = {
 			BundleQuantity: 2,
@@ -121,9 +121,9 @@ describe('CreditCalculationService', function() {
 			ClientBundleInputChoices: [],
 		}
 		let mockSeason = {	CreditCycles: [	{ CreditCycleId: 1}	] };
-		
+
 		expect(creditCalculationService.calculateClientBundleCredit(mockClientBundle, mockSeason)).toEqual(235);
-								
+
 	})
 
 	it('calculates Required-Quantity, one-year bundle price correctly', function() {
@@ -142,24 +142,24 @@ describe('CreditCalculationService', function() {
 			ClientBundleInputChoices: [],
 		}
 		let mockSeason = {	CreditCycles: [	{ CreditCycleId: 1}	] };
-		
+
 		expect(creditCalculationService.calculateClientBundleCredit(mockClientBundle, mockSeason)).toEqual(970);
 		mockClientBundle.BundleQuantity = 3;
 		expect(creditCalculationService.calculateClientBundleCredit(mockClientBundle, mockSeason)).toEqual(1160);
 		mockClientBundle.BundleQuantity = 6;
-		expect(creditCalculationService.calculateClientBundleCredit(mockClientBundle, mockSeason)).toEqual(1760);	
+		expect(creditCalculationService.calculateClientBundleCredit(mockClientBundle, mockSeason)).toEqual(1760);
 		// there is no bucket for this, so no input is added to the calculation
 		mockClientBundle.BundleQuantity = 8;
-		expect(creditCalculationService.calculateClientBundleCredit(mockClientBundle, mockSeason)).toEqual(2100);	
+		expect(creditCalculationService.calculateClientBundleCredit(mockClientBundle, mockSeason)).toEqual(2100);
 		// this tests the calculation when there is a reqFrom qty, but no ReqTo qty (should catch everythign GE ReqFromQty)
 		mockClientBundle.BundleQuantity = 8;
 		mockClientBundle.Bundle.BundleInputs.push(new BundleInput(4,'Hound', 0, 5, 7, null, null));
 		expect(creditCalculationService.calculateClientBundleCredit(mockClientBundle, mockSeason)).toEqual(2140);
-		
+
 	});
 
 	it('calculates price for one-year bundles using Input Choices', function() {
-		
+
 		let BundleInputs = [
 				//					ID	SelectionGroup	FixedAdj	PerBundleAdj	ReqQtyFrom	ReqQtyTo	ReqInputId
 					new BundleInput(1, 	'Jon', 			10, 		30, 			null, 			null, 			null),
@@ -179,10 +179,10 @@ describe('CreditCalculationService', function() {
 			}],
 		}
 		let mockSeason = {	CreditCycles: [	{ CreditCycleId: 1}	] };
-		
+
 		// 500 + 200 * 2 + 10 + 30 * 2
 		expect(creditCalculationService.calculateClientBundleCredit(mockClientBundle, mockSeason)).toEqual(970);
-		
+
 		mockClientBundle.ClientBundleInputChoices[0].BundleInput =  BundleInputs[1];
 		// 500 + 200 * 2 + 0 + 20 * 2
 		expect(creditCalculationService.calculateClientBundleCredit(mockClientBundle, mockSeason)).toEqual(940);
@@ -196,7 +196,7 @@ describe('CreditCalculationService', function() {
 		expect(creditCalculationService.calculateClientBundleCredit(mockClientBundle, mockSeason)).toEqual(920);
 	});
 	it('calculates price for one-year bundles with conditionally required inputs referring to SELECTED input', function() {
-		
+
 		let BundleInputs = [
 				//					ID	SelectionGroup	FixedAdj	PerBundleAdj	ReqQtyFrom	ReqQtyTo	ReqInputId
 					new BundleInput(1, 	'Jon', 			10, 		30, 			null, 			null, 			null),
@@ -218,10 +218,10 @@ describe('CreditCalculationService', function() {
 			}],
 		}
 		let mockSeason = {	CreditCycles: [	{ CreditCycleId: 1}	] };
-		
+
 		// 500 + 200 * 2 + 10 + 30 * 2 + 10*2
 		expect(creditCalculationService.calculateClientBundleCredit(mockClientBundle, mockSeason)).toEqual(990);
-		
+
 		mockClientBundle.ClientBundleInputChoices[0].BundleInput =  BundleInputs[1];
 		// 500 + 200 * 2 + 0 + 20 * 2 + 150
 		expect(creditCalculationService.calculateClientBundleCredit(mockClientBundle, mockSeason)).toEqual(1090);
@@ -232,7 +232,7 @@ describe('CreditCalculationService', function() {
 
 	});
 	it('calculates price for one-year bundles with nested conditionally required inputs referring to SELECTED input', function() {
-		
+
 		let BundleInputs = [
 				//					ID	SelectionGroup	FixedAdj	PerBundleAdj	ReqQtyFrom	ReqQtyTo	ReqInputId
 					new BundleInput(1, 	'Jon', 			10, 		30, 			null, 			null, 			null),
@@ -254,10 +254,10 @@ describe('CreditCalculationService', function() {
 			}],
 		}
 		let mockSeason = {	CreditCycles: [	{ CreditCycleId: 1}	] };
-		
-		// 500 + 200 * 2 + 10 + 30 * 2 
+
+		// 500 + 200 * 2 + 10 + 30 * 2
 		expect(creditCalculationService.calculateClientBundleCredit(mockClientBundle, mockSeason)).toEqual(970);
-		
+
 		mockClientBundle.ClientBundleInputChoices[0].BundleInput =  BundleInputs[1];
 		// 500 + 200 * 2 + 0 + 20 * 2 + 50 + 50 * 2 + 10 * 2
 		expect(creditCalculationService.calculateClientBundleCredit(mockClientBundle, mockSeason)).toEqual(1110);
@@ -268,7 +268,7 @@ describe('CreditCalculationService', function() {
 
 	});
 	it('calculates price for one-year bundles with conditionally required inputs referring to min/max input', function() {
-		
+
 		let BundleInputs = [
 				//					ID	SelectionGroup	FixedAdj	PerBundleAdj	ReqQtyFrom	ReqQtyTo	ReqInputId
 					new BundleInput(1, 	'Jon', 			10, 		30, 			null, 			2, 				null),
@@ -287,10 +287,10 @@ describe('CreditCalculationService', function() {
 			ClientBundleInputChoices: [],
 		}
 		let mockSeason = {	CreditCycles: [	{ CreditCycleId: 1}	] };
-		
-		// 500 + 200 * 2 + 10 + 30 * 2 
+
+		// 500 + 200 * 2 + 10 + 30 * 2
 		expect(creditCalculationService.calculateClientBundleCredit(mockClientBundle, mockSeason)).toEqual(970);
-		
+
 		mockClientBundle.BundleQuantity = 3;
 		// 500 + 200 * 3 + 0 + 20 * 3 + 10 * 3
 		expect(creditCalculationService.calculateClientBundleCredit(mockClientBundle, mockSeason)).toEqual(1190);
@@ -305,7 +305,7 @@ describe('CreditCalculationService', function() {
 
 	});
 	it('calculates price for one-year bundles for inputs with RequiredBundleInputId and min/max quantities', function() {
-		
+
 		let mockBundleInputs = [
 				//					ID	SelectionGroup	FixedAdj	PerBundleAdj	ReqQtyFrom	ReqQtyTo	ReqInputId
 					new BundleInput(1, 	'Jon', 			10, 		30, 			null, 			2, 				null),
@@ -320,11 +320,11 @@ describe('CreditCalculationService', function() {
 		let mockSeason = { SeasonId: 1 };
 		let mockCreditCycleBundles = [ { CreditCycleId: 1, CreditPercentage: 1 } ];
 		let mockCreditCycles = [ { CreditCycleId: 1 } ];
-		
-		// 500 + 200 * 2 + 10 + 30 * 2 
+
+		// 500 + 200 * 2 + 10 + 30 * 2
 		var whereSpy = spyOn(mockWhere,'where').and.returnValues(mockCreditCycles,mockBundle,mockBundleInputs,mockCreditCycleBundles,mockClientBundleInputChoices)
 		expect(creditCalculationService.calculateClientBundleCredit(mockClientBundle, mockSeason)).toEqual(970);
-		
+
 		mockClientBundle.BundleQuantity = 3;
 		// 500 + 200 * 3 + 0 + 20 * 3 + 10 * 3
 		whereSpy.and.returnValues(mockCreditCycles,mockBundle,mockBundleInputs,mockCreditCycleBundles,mockClientBundleInputChoices)
